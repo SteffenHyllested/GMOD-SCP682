@@ -126,11 +126,15 @@ function SWEP:SecondaryAttack()
         -- Stun target
         -- Right now stunning is represented by coloring them yellow
         target:SetColor(Color(255,255,0,255))
-        target:SetNWBool("stunned",true)
+
+        for _,weapon in pairs(target:GetWeapons()) do
+            weapon:SetNextPrimaryFire(CurTime() + ROAR_TARGET_STUN)
+            weapon:SetNextSecondaryFire(CurTime() + ROAR_TARGET_STUN)
+        end
+
         timer.Simple(ROAR_TARGET_STUN, function()
             if not target:IsValid() then return end -- Target might have died/left since they got stunned
             target:SetColor(Color(255,255,255,255))
-            target:SetNWBool("stunned",false)
         end)
 
         target:TakeDamage(SECONDARY_DAMAGE, owner, self)
