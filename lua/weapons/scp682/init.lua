@@ -36,6 +36,13 @@ hook.Add("PlayerHurt","682-hurt",function(victim, _, _, damageTaken)
     end
 end)
 
+function DisablePickup(client,_)
+    return not client:HasWeapon("scp682")
+end
+
+hook.Add("PlayerCanPickupWeapon","disable-weapon-pickup-682",DisablePickup)
+hook.Add("PlayerCanPickupItem","disable-item-pickup-682",DisablePickup)
+
 -- This function acts like a basic magnitude-based hitbox
 function GetTargetsInRange(position,range)
     local targets = {}
