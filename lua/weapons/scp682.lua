@@ -28,7 +28,7 @@ SWEP.RoarSound = Sound("scp682/roar5.mp3")
 SWEP.NextSecondaryFire = 0
 
 function SWEP:Initialize()
-    self:SetHoldType("normal") -- Necessary for animations for some reason
+    self:SetHoldType("knife") -- Necessary for animations to play
 end
 
 function SWEP:Equip()
@@ -36,6 +36,14 @@ function SWEP:Equip()
     SWEPPlayer:SetWalkSpeed(240) -- Set player speeds
     SWEPPlayer:SetRunSpeed(360)
 end
+
+hook.Add("DoAnimationEvent", "682attackanim", function(ply,event) -- Thank you homonovus for the help
+	local wep = ply:GetActiveWeapon()
+	if wep:IsValid() and wep:GetPrintName() == "SCP 682" and event == PLAYERANIMEVENT_ATTACK_SECONDARY then -- If it is the correct SWEP and attack
+        ply:AddVCDSequenceToGestureSlot(GESTURE_SLOT_ATTACK_AND_RELOAD, ply:LookupSequence("attack1"), 0, true) -- Add the roar gesture
+        return ACT_INVALID -- Prevent original animation from playing(?)
+	end
+end)
 
 function SWEP:PrimaryAttack()
     self:SetNextPrimaryFire(CurTime() + 0.4)
@@ -87,9 +95,8 @@ function SWEP:SecondaryAttack()
 
     SWEPPlayer:SetWalkSpeed(10) -- Slow player
     SWEPPlayer:SetRunSpeed(15)
-    --SWEPPlayer:SetAnimation(5) -- Idk why this doesn't work
-    local id = SWEPPlayer:AddGesture(64)
-
+    SWEPPlayer:DoCustomAnimEvent(PLAYERANIMEVENT_ATTACK_SECONDARY,0)
+    
     timer.Simple(2, function() -- Wait 2 seconds
         SWEPPlayer:SetWalkSpeed(240) -- Set speed back to normal
         SWEPPlayer:SetRunSpeed(360)
