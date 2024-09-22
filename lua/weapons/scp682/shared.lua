@@ -58,5 +58,4 @@ end
 
 function SWEP:Initialize()
     self:SetHoldType("melee") -- Necessary for animations to play
-    self:SetNWFloat("RF",1)
 end

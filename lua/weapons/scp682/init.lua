@@ -14,7 +14,7 @@ local PRIMARY_DAMAGE = 35
 
 local SECONDARY_HITBOX_RANGE = 350
 local SECONDARY_HITBOX_OFFSET = 0
-local SECONDARY_COOLDOWN = 15 --15
+local SECONDARY_COOLDOWN = 15
 local SECONDARY_DAMAGE = 0
 
 local ROAR_SELF_STUN = 2
@@ -87,6 +87,8 @@ function SWEP:ChangeBodymass(amount)
 end
 
 function SWEP:Equip()
+    self:SetNWFloat("RF",1)
+
     local owner = self:GetOwner()
     owner:SetWalkSpeed(WALKSPEED) -- Set player speeds
     owner:SetRunSpeed(RUNSPEED)
@@ -150,9 +152,11 @@ function SWEP:SecondaryAttack()
         -- Stun target
         -- Right now stunning is represented by coloring them yellow
         target:SetColor(Color(255,255,0,255))
+        target:SetNWBool("stunned",true)
         timer.Simple(ROAR_TARGET_STUN, function()
             if not target:IsValid() then return end -- Target might have died/left since they got stunned
             target:SetColor(Color(255,255,255,255))
+            target:SetNWBool("stunned",false)
         end)
 
         target:TakeDamage(SECONDARY_DAMAGE, owner, self)
