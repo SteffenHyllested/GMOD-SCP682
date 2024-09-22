@@ -78,7 +78,7 @@ end
 function SWEP:SecondaryAttack()
     if CurTime() < self.NextSecondaryFire then return end
     self:SetNextPrimaryFire(CurTime() + 2)
-    self:SetNextSecondaryFire(CurTime() + 2) -- 15 sec M2 cooldown
+    self:SetNextSecondaryFire(CurTime() + 15) -- 15 sec M2 cooldown
 
     local HitboxSize = 350 -- tree fiddy
 
