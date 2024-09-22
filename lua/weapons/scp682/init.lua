@@ -14,7 +14,7 @@ local PRIMARY_DAMAGE = 35
 
 local SECONDARY_HITBOX_RANGE = 350
 local SECONDARY_HITBOX_OFFSET = 0
-local SECONDARY_COOLDOWN = 15
+local SECONDARY_COOLDOWN = 15 --15
 local SECONDARY_DAMAGE = 0
 
 local ROAR_SELF_STUN = 2
@@ -78,16 +78,6 @@ function GetTargetsInRange(position,range)
     return targets -- Return the targets
 end
 
--- Use for offsetting hitboxes from the player
-function OffsetPositionFromPlayer(client,distance)
-    local position = client:GetPos()
-    local direction = client:GetAngles():Forward()
-    direction.z = 0 -- Ignore the z axis
-    direction = direction:GetNormalized() -- Normalize the vector
-
-    return position + direction * distance
-end
-
 function SWEP:ChangeBodymass(amount)
     self:SetNWFloat("RF",math.Clamp(self:GetNWFloat("RF") + amount, RF_MIN, RF_MAX))
 
@@ -144,11 +134,9 @@ function SWEP:SecondaryAttack()
 
     local owner = self:GetOwner()
 
-    owner:SetWalkSpeed(10) -- Slow player
-    owner:SetRunSpeed(15)
+    owner:Freeze(true)
     timer.Simple(ROAR_SELF_STUN, function()
-        owner:SetWalkSpeed(WALKSPEED) -- Reset speed
-        owner:SetRunSpeed(RUNSPEED)
+        owner:Freeze(false)
     end)
 
     owner:DoCustomAnimEvent(PLAYERANIMEVENT_ATTACK_SECONDARY,0) -- Play roar animation
@@ -172,8 +160,6 @@ function SWEP:SecondaryAttack()
             self:ChangeBodymass(RF_KILL_REWARD)
         end
     end
-
-    self:EmitSound(self.RoarSound)
 end
 
 print("SCP 682 SWEP Initialized")

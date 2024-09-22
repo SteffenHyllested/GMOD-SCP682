@@ -1,3 +1,6 @@
+game.AddParticles("particles/warp_circle.pcf")
+PrecacheParticleSystem("warp_circle")
+
 SWEP.PrintName = "SCP 682"
 SWEP.Author = "Steffen Hyllested Pedersen"
 SWEP.Instructions = "Left Click to Attack\nRight Click to Roar"
@@ -32,11 +35,28 @@ hook.Add("DoAnimationEvent", "682-attack-anim", function(client,event) -- Thank 
     -- Add a check to see if it is the correct weapon
     if weapon:IsValid() and event == PLAYERANIMEVENT_ATTACK_SECONDARY then -- Ensure it is the correct animation we are overriding
         client:AddVCDSequenceToGestureSlot(GESTURE_SLOT_ATTACK_AND_RELOAD, client:LookupSequence("attack1"), 0, true) -- Add the roar gesture to the player
+
+        if CLIENT then
+            timer.Simple(0.75,function()
+                client:EmitSound(weapon.RoarSound)
+                weapon:PlayRoarEffect() -- Play the roar effect on the
+            end)
+        end
+
         return ACT_INVALID -- Don't send activity to weapon
     end
 end)
 
+function OffsetPositionFromPlayer(client,distance)
+    local position = client:GetPos()
+    local direction = client:GetAngles():Forward()
+    direction.z = 0 -- Ignore the z axis
+    direction = direction:GetNormalized() -- Normalize the vector
+
+    return position + direction * distance
+end
+
 function SWEP:Initialize()
-    self:SetHoldType("normal") -- Necessary for animations to play
+    self:SetHoldType("melee") -- Necessary for animations to play
     self:SetNWFloat("RF",1)
 end

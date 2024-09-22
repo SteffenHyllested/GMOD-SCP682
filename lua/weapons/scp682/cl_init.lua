@@ -17,3 +17,14 @@ hook.Add("HUDPaint", "draw-682-hud", function()
         draw.SimpleTextOutlined(tostring(math.floor(weapon:GetNWFloat("RF")*100)).."%", "LargeMainFont", Width/2, 90, Color( 255, 100, 100, 255 ), TEXT_ALIGN_CENTER, TEXT_ALIGN_TOP, 2, Color(0,0,0,255))
     end
 end)
+
+function SWEP:PlayRoarEffect()
+    local owner = self:GetOwner()
+    local position = OffsetPositionFromPlayer(owner,140)
+    local offset = position - owner:GetPos() + Vector(0,0,30)
+    local particles = CreateParticleSystem(owner, "warp_circle", PATTACH_ABSORIGIN, 0, offset)
+    timer.Simple(2, function()
+        if not particles:IsValid() then return end
+        particles:StopEmission()
+    end)
+end
