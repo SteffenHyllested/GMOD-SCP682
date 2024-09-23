@@ -18,6 +18,15 @@ hook.Add("HUDPaint", "draw-682-hud", function()
     end
 end)
 
+hook.Add("PlayerFootstep","682-steps",function(client, position, foot, _, _, recipientFilter)
+    if not client:HasWeapon("scp682") then return false end -- Do nothing if player doesn't have 682 SWEP
+    local weapon = client:GetWeapon("scp682")
+
+    local soundName = weapon.StepSounds[foot+1] -- +1 because Lua indexes by 1 not 0
+    EmitSound(soundName,position,0,CHAN_AUTO,1,75,0,100,0,recipientFilter)
+    return true -- Don't play default step sound
+end)
+
 function SWEP:PlayRoarEffect()
     local owner = self:GetOwner()
     local position = OffsetPositionFromPlayer(owner,140)
@@ -28,3 +37,5 @@ function SWEP:PlayRoarEffect()
         particles:StopEmission()
     end)
 end
+
+function SWEP:PrimaryAttack() end -- This is just to stop the client from playing an annoying clicking sound when playing 682

@@ -19,15 +19,6 @@ hook.Add("PlayerDeath","682-death",function(victim, _, _)
     end
 end)
 
-hook.Add("PlayerFootstep","682-steps",function(client, position, foot, _, _, recipientFilter)
-    if not client:HasWeapon("scp682") then return false end -- Do nothing if player doesn't have 682 SWEP
-    local weapon = client:GetWeapon("scp682")
-
-    local soundName = weapon.StepSounds[foot+1] -- +1 because Lua indexes by 1 not 0
-    EmitSound(soundName,position,0,CHAN_AUTO,1,75,0,100,0,recipientFilter)
-    return true -- Don't play default step sound
-end)
-
 hook.Add("PlayerHurt","682-hurt",function(victim, _, _, damageTaken)
     if victim:HasWeapon("scp682") then
         local RFReduction = damageTaken * RF_DAMAGE_PENALTY_MULT
@@ -121,8 +112,6 @@ function SWEP:SecondaryAttack()
     timer.Simple(ROAR_SELF_STUN, function()
         owner:Freeze(false)
     end)
-
-    owner:DoCustomAnimEvent(PLAYERANIMEVENT_ATTACK_SECONDARY,0) -- Play roar animation
 
     local hitboxPosition = OffsetPositionFromPlayer(owner,SECONDARY_HITBOX_OFFSET)
     local targets = GetTargetsInRange(hitboxPosition,SECONDARY_HITBOX_RANGE)

@@ -59,3 +59,8 @@ end
 function SWEP:Initialize()
     self:SetHoldType("melee") -- Necessary for animations to play
 end
+
+function SWEP:SecondaryAttack()
+    local owner = self:GetOwner()
+    owner:DoCustomAnimEvent(PLAYERANIMEVENT_ATTACK_SECONDARY,0) -- Play roar animation
+end
