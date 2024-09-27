@@ -1,5 +1,5 @@
 Config = {}
-_G.SCP682.Config = Config
+_G.SCP682 = {Config = Config}
 
 Config.WALKSPEED = 240
 Config.RUNSPEED = 360
