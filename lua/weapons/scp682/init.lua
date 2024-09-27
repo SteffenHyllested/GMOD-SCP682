@@ -4,15 +4,6 @@ AddCSLuaFile( "shared.lua" )
 include( "shared.lua" )
 include( "config.lua" )
 
-hook.Add( "StartCommand", "disable-682-crouch-jump", function(client, command)
-    -- If they are 682
-    if client:HasWeapon( "scp682" ) then
-        --Remove the ability to crouch & jump.
-        command:RemoveKey( IN_DUCK )
-        command:RemoveKey( IN_JUMP )
-    end
-end )
-
 hook.Add( "PlayerDeath", "682-death", function(victim, _, _)
     if victim:HasWeapon( "scp682" ) then
         victim:SetModelScale( 1 ) -- Reset model size when player dies with 682 SWEP
@@ -109,6 +100,7 @@ function SWEP:SecondaryAttack()
     self:SetNextSecondaryFire( CurTime() + Config.SECONDARY_COOLDOWN )
 
     local owner = self:GetOwner()
+    owner:DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_SECONDARY, 0 ) -- Play roar animation
 
     owner:Freeze( true )
     timer.Simple( Config.ROAR_SELF_STUN, function()

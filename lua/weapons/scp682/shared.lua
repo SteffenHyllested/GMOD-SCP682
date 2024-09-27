@@ -47,6 +47,24 @@ hook.Add( "DoAnimationEvent", "682-attack-anim", function( client, event ) -- Th
     end
 end )
 
+hook.Add( "StartCommand", "disable-682-crouch-jump", function(client, command)
+    -- If they are 682
+    if client:HasWeapon( "scp682" ) then
+        --Remove the ability to crouch & jump.
+        command:RemoveKey( IN_DUCK )
+        command:RemoveKey( IN_JUMP )
+    end
+end )
+
+hook.Add( "PlayerFootstep", "682-steps", function( client, position, foot, _, _, recipientFilter )
+    if not client:HasWeapon( "scp682" ) then return false end -- Do nothing if player doesn't have 682 SWEP
+    local weapon = client:GetWeapon( "scp682" )
+
+    local soundName = weapon.StepSounds[ foot + 1 ] -- +1 because Lua indexes by 1 not 0
+    EmitSound( soundName, position, 0, CHAN_AUTO, 1, 75, 0, 100, 0, recipientFilter )
+    return true -- Don't play default step sound
+end )
+
 function OffsetPositionFromPlayer( client, distance )
     local position = client:GetPos()
     local direction = client:GetAngles():Forward()
@@ -60,7 +78,13 @@ function SWEP:Initialize()
     self:SetHoldType( "melee" ) -- Necessary for animations to play
 end
 
-function SWEP:SecondaryAttack()
+function SWEP:PlayRoarEffect()
     local owner = self:GetOwner()
-    owner:DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_SECONDARY, 0 ) -- Play roar animation
+    local position = OffsetPositionFromPlayer( owner, 140 )
+    local offset = position - owner:GetPos() + Vector( 0, 0, 30 )
+    local particles = CreateParticleSystem( owner, "warp_circle", PATTACH_ABSORIGIN, 0, offset )
+    timer.Simple( 2, function()
+        if not particles:IsValid() then return end
+        particles:StopEmission()
+    end )
 end
