@@ -1,5 +1,5 @@
-game.AddParticles("particles/warp_circle.pcf")
-PrecacheParticleSystem("warp_circle")
+game.AddParticles( "particles/warp_circle.pcf" )
+PrecacheParticleSystem( "warp_circle" )
 
 SWEP.PrintName = "SCP 682"
 SWEP.Author = "Steffen Hyllested Pedersen"
@@ -26,28 +26,28 @@ SWEP.ViewModel = ""
 SWEP.WorldModel = ""
 
 SWEP.UseHands = false
-SWEP.AttackSound = Sound("scp682/roar4.mp3")
-SWEP.StepSounds = {Sound("scp682/footstep1.mp3"),Sound("scp682/footstep2.mp3")}
-SWEP.RoarSound = Sound("scp682/roar5.mp3")
+SWEP.AttackSound = Sound( "scp682/roar4.mp3" )
+SWEP.StepSounds = { Sound( "scp682/footstep1.mp3" ), Sound( "scp682/footstep2.mp3" ) }
+SWEP.RoarSound = Sound( "scp682/roar5.mp3" )
 
-hook.Add("DoAnimationEvent", "682-attack-anim", function(client,event) -- Thank you homonovus for the help
+hook.Add( "DoAnimationEvent", "682-attack-anim", function( client, event ) -- Thank you homonovus for the help
     local weapon = client:GetActiveWeapon()
     -- Add a check to see if it is the correct weapon
     if weapon:IsValid() and event == PLAYERANIMEVENT_ATTACK_SECONDARY then -- Ensure it is the correct animation we are overriding
-        client:AddVCDSequenceToGestureSlot(GESTURE_SLOT_ATTACK_AND_RELOAD, client:LookupSequence("attack1"), 0, true) -- Add the roar gesture to the player
+        client:AddVCDSequenceToGestureSlot( GESTURE_SLOT_ATTACK_AND_RELOAD, client:LookupSequence( "attack1" ), 0, true ) -- Add the roar gesture to the player
 
         if CLIENT then
-            timer.Simple(0.75,function()
-                client:EmitSound(weapon.RoarSound)
+            timer.Simple( 0.75, function()
+                client:EmitSound( weapon.RoarSound )
                 weapon:PlayRoarEffect() -- Play the roar effect on the
-            end)
+            end )
         end
 
         return ACT_INVALID -- Don't send activity to weapon
     end
-end)
+end )
 
-function OffsetPositionFromPlayer(client,distance)
+function OffsetPositionFromPlayer( client, distance )
     local position = client:GetPos()
     local direction = client:GetAngles():Forward()
     direction.z = 0 -- Ignore the z axis
@@ -57,10 +57,10 @@ function OffsetPositionFromPlayer(client,distance)
 end
 
 function SWEP:Initialize()
-    self:SetHoldType("melee") -- Necessary for animations to play
+    self:SetHoldType( "melee" ) -- Necessary for animations to play
 end
 
 function SWEP:SecondaryAttack()
     local owner = self:GetOwner()
-    owner:DoCustomAnimEvent(PLAYERANIMEVENT_ATTACK_SECONDARY,0) -- Play roar animation
+    owner:DoCustomAnimEvent( PLAYERANIMEVENT_ATTACK_SECONDARY, 0 ) -- Play roar animation
 end
