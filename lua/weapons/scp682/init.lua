@@ -21,7 +21,7 @@ end)
 
 hook.Add("PlayerHurt","682-hurt",function(victim, _, _, damageTaken)
     if victim:HasWeapon("scp682") then
-        local RFReduction = damageTaken * RF_DAMAGE_PENALTY_MULT
+        local RFReduction = damageTaken * Config.RF_DAMAGE_PENALTY_MULT
         local weapon = victim:GetWeapon("scp682")
         weapon:ChangeBodymass(-RFReduction)
     end
@@ -51,19 +51,21 @@ function GetTargetsInRange(position,range)
 end
 
 function SWEP:ChangeBodymass(amount)
-    self:SetNWFloat("RF",math.Clamp(self:GetNWFloat("RF") + amount, RF_MIN, RF_MAX))
+    self:SetNWFloat("RF",math.Clamp(self:GetNWFloat("RF") + amount, Config.RF_MIN, Config.RF_MAX))
 
     local owner = self:GetOwner()
-    owner:SetMaxHealth(MAXHEALTH * self:GetNWFloat("RF"))
-    owner:SetModelScale(MODEL_SCALE_MIN + math.min(self:GetNWFloat("RF") * (MODEL_SCALE_MAX - MODEL_SCALE_MIN), (MODEL_SCALE_MAX - MODEL_SCALE_MIN)), 0.1)
+    owner:SetMaxHealth(Config.MAXHEALTH * self:GetNWFloat("RF"))
+
+    local maxScaleModifier = (Config.MODEL_SCALE_MAX - Config.MODEL_SCALE_MIN)
+    owner:SetModelScale(Config.MODEL_SCALE_MIN + math.min(self:GetNWFloat("RF") * maxScaleModifier, maxScaleModifier), 0.1)
 end
 
 function SWEP:Equip()
     self:SetNWFloat("RF",1)
 
     local owner = self:GetOwner()
-    owner:SetWalkSpeed(WALKSPEED) -- Set player speeds
-    owner:SetRunSpeed(RUNSPEED)
+    owner:SetWalkSpeed(Config.WALKSPEED) -- Set player speeds
+    owner:SetRunSpeed(Config.RUNSPEED)
     
     -- Removes all other weapons
     for _,weapon in pairs(owner:GetWeapons()) do
@@ -77,23 +79,23 @@ function SWEP:Equip()
     owner:SetHealth(owner:GetMaxHealth()) -- Set health to max
 
     -- Give the player regen
-    timer.Create("682-regen-"..owner:AccountID(), RF_FREQ, -1, function()
-        owner:SetHealth(math.min(owner:Health() + owner:GetMaxHealth() * RF_RATE, owner:GetMaxHealth()))
+    timer.Create("682-regen-"..owner:AccountID(), Config.RF_FREQ, -1, function()
+        owner:SetHealth(math.min(owner:Health() + owner:GetMaxHealth() * Config.RF_RATE, owner:GetMaxHealth()))
     end)
 end
 
 function SWEP:PrimaryAttack()
-    self:SetNextPrimaryFire(CurTime() + PRIMARY_COOLDOWN)
+    self:SetNextPrimaryFire(CurTime() + Config.PRIMARY_COOLDOWN)
 
     local owner = self:GetOwner()
-    local hitboxPosition = OffsetPositionFromPlayer(owner,PRIMARY_HITBOX_OFFSET)
-    local targets = GetTargetsInRange(hitboxPosition,PRIMARY_HITBOX_RANGE)
+    local hitboxPosition = OffsetPositionFromPlayer(owner,Config.PRIMARY_HITBOX_OFFSET)
+    local targets = GetTargetsInRange(hitboxPosition,Config.PRIMARY_HITBOX_RANGE)
 
     for _,target in pairs(targets) do
         if target == owner then continue end
-        target:TakeDamage(PRIMARY_DAMAGE, owner, self)
+        target:TakeDamage(Config.PRIMARY_DAMAGE, owner, self)
         if target:Health() <= 0 then -- Killed the target
-            self:ChangeBodymass(RF_KILL_REWARD)
+            self:ChangeBodymass(Config.RF_KILL_REWARD)
         end
     end
 
@@ -103,18 +105,18 @@ function SWEP:PrimaryAttack()
 end
 
 function SWEP:SecondaryAttack()
-    self:SetNextPrimaryFire(CurTime() + ROAR_SELF_STUN)
-    self:SetNextSecondaryFire(CurTime() + SECONDARY_COOLDOWN)
+    self:SetNextPrimaryFire(CurTime() + Config.ROAR_SELF_STUN)
+    self:SetNextSecondaryFire(CurTime() + Config.SECONDARY_COOLDOWN)
 
     local owner = self:GetOwner()
 
     owner:Freeze(true)
-    timer.Simple(ROAR_SELF_STUN, function()
+    timer.Simple(Config.ROAR_SELF_STUN, function()
         owner:Freeze(false)
     end)
 
-    local hitboxPosition = OffsetPositionFromPlayer(owner,SECONDARY_HITBOX_OFFSET)
-    local targets = GetTargetsInRange(hitboxPosition,SECONDARY_HITBOX_RANGE)
+    local hitboxPosition = OffsetPositionFromPlayer(owner,Config.SECONDARY_HITBOX_OFFSET)
+    local targets = GetTargetsInRange(hitboxPosition,Config.SECONDARY_HITBOX_RANGE)
 
     for _,target in pairs(targets) do
         if target == owner then continue end
@@ -124,18 +126,18 @@ function SWEP:SecondaryAttack()
         target:SetColor(Color(255,255,0,255))
 
         for _,weapon in pairs(target:GetWeapons()) do
-            weapon:SetNextPrimaryFire(CurTime() + ROAR_TARGET_STUN)
-            weapon:SetNextSecondaryFire(CurTime() + ROAR_TARGET_STUN)
+            weapon:SetNextPrimaryFire(CurTime() + Config.ROAR_TARGET_STUN)
+            weapon:SetNextSecondaryFire(CurTime() + Config.ROAR_TARGET_STUN)
         end
 
-        timer.Simple(ROAR_TARGET_STUN, function()
+        timer.Simple(Config.ROAR_TARGET_STUN, function()
             if not target:IsValid() then return end -- Target might have died/left since they got stunned
             target:SetColor(Color(255,255,255,255))
         end)
 
-        target:TakeDamage(SECONDARY_DAMAGE, owner, self)
+        target:TakeDamage(Config.SECONDARY_DAMAGE, owner, self)
         if target:Health() <= 0 then -- Killed the target
-            self:ChangeBodymass(RF_KILL_REWARD)
+            self:ChangeBodymass(Config.RF_KILL_REWARD)
         end
     end
 end
